@@ -21,7 +21,7 @@ public class Component1Benchmark : IDisposable
     public async Task<int> InitialRender()
     {
         // Render a component
-        var component = await renderer.Render<Component1>(ParameterView.Empty);
+        var component = await renderer.RenderAsync<Component1>(ParameterView.Empty);
 
         // Set new parameters and re-render
         await renderer.SetParametersAsync(component, ParameterView.FromDictionary(new Dictionary<string, object?>()

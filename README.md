@@ -34,10 +34,10 @@ To **render a component** (any type that implements `IComponent`), do the follow
 
 ```c#
 // Render without parameters passed to Component1
-var component = await renderer.Render<Component1>(ParameterView.Empty);
+var component = await renderer.RenderAsync<Component1>(ParameterView.Empty);
 
 // Render with parameters passed to Component1
-component = await renderer.Render<Component1>(ParameterView.FromDictionary(new Dictionary<string, object?>()
+component = await renderer.RenderAsync<Component1>(ParameterView.FromDictionary(new Dictionary<string, object?>()
 {
     { "Text", "Foo" }
 }));

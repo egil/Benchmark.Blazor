@@ -10,11 +10,11 @@ internal class BenchmarkRenderer : Renderer
 
     /// <summary>
     /// Any unhandled exceptions thrown by the Blazor Renderer after 
-    /// a call to <see cref="Render{TComponent}(ParameterView)"/> or 
+    /// a call to <see cref="RenderAsync{TComponent}(ParameterView)"/> or 
     /// <see cref="SetParametersAsync{TComponent}(TComponent, ParameterView)"/>.    
     /// </summary>
     /// <remarks>
-    /// This is reset after each call to <see cref="Render{TComponent}(ParameterView)"/> or
+    /// This is reset after each call to <see cref="RenderAsync{TComponent}(ParameterView)"/> or
     /// <see cref="SetParametersAsync{TComponent}(TComponent, ParameterView)"/>.
     /// </remarks>
     public Exception? UnhandledException { get; private set; }
@@ -57,7 +57,7 @@ internal class BenchmarkRenderer : Renderer
     /// The parameters to pass to the <typeparamref name="TComponent"/> during 
     /// first render. Use <see cref="ParameterView.Empty"/> to pass no parameters.</param>
     /// <returns>The instance of the <typeparamref name="TComponent"/>.</returns>
-    public Task<TComponent> Render<TComponent>(ParameterView parameters)
+    public Task<TComponent> RenderAsync<TComponent>(ParameterView parameters)
         where TComponent : IComponent, new()
     {
         UnhandledException = null;
