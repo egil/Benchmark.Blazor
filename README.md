@@ -63,4 +63,6 @@ await renderer.SetParametersAsync(component, ParameterView.Empty);
 
 # Contributions and suggestions
 
-Any contributions or suggestions are very welcome. I have no experience with benchmark.net, so help setting up sample tests are very welcome expecially. 
+**Any and all contributions or suggestions are welcome**.
+
+I have no experience with benchmark.net, so help setting up sample benchmarks are expecially welcome. 
