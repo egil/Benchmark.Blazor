@@ -27,7 +27,7 @@ var services = new ServiceCollection();
 // rendered with the renderer here, e.g.:
 services.AddSingleton<IFoo, Foo>();
 
-var renderer = new BenchmarkRenderer();
+var renderer = new BenchmarkRenderer(services.BuildServiceProvider());
 ```
 
 To **render a component** (any type that implements `IComponent`), do the following:
