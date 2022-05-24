@@ -47,18 +47,20 @@ To **re-render and optionally pass new parameters** to a component, do the follo
 
 ```c#
 // Set new parameters and re-render
-await renderer.SetParametersAsync(component, ParameterView.FromDictionary(new Dictionary<string, object?>()
+await component.SetParametersAsync(ParameterView.FromDictionary(new Dictionary<string, object?>()
 {
     { "Text", "Foo" }
 }));
 
 // Re render without setting new parameters
-await renderer.SetParametersAsync(component, ParameterView.Empty);
+await component.SetParametersAsync(ParameterView.Empty);
 ```
 
 **Tips:**
 
 - Get the number of render cycles performed by the `BenchmarkRenderer` through `BenchmarkRenderer.RenderCount` property.
+- Get any unhandled exception thrown during rendering via the `BenchmarkRenderer.UnhandledException` property. This is reset at the beginning of calls to `BenchmarkRenderer.Render()`.
+- Call `component.RemoveComponent();` or `BenchmarkRenderer.RemoveComponents()` at the end of each test method. This will remove the rendered component from the render tree and free up resources the renderer is using to track the component. Otherwise memory usage will grove after each render.
 - Get any unhandled exception thrown during rendering via the `BenchmarkRenderer.UnhandledException` property. This is reset at the beginning of calls to `BenchmarkRenderer.Render()` and `BenchmarkRenderer.SetParametersAsync()`.
 
 # Contributions and suggestions
