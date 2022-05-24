@@ -1,10 +1,11 @@
 ﻿namespace Benchmark.Blazor.Benchmarks;
 
-public class Component1Benchmark : IDisposable
+public class Component1Benchmark
 {
-    private readonly BenchmarkRenderer renderer;
+    private BenchmarkRenderer renderer = default!;
 
-    public Component1Benchmark()
+    [GlobalSetup]
+    public void GlobalSetup()
     {
         var services = new ServiceCollection();
 
@@ -15,7 +16,8 @@ public class Component1Benchmark : IDisposable
         renderer = new BenchmarkRenderer(services.BuildServiceProvider());
     }
 
-    public void Dispose() => renderer.Dispose();
+    [GlobalCleanup]
+    public void GlobalCleanup() => renderer.Dispose();
 
     [Benchmark]
     public async Task<int> InitialRender()
@@ -24,13 +26,17 @@ public class Component1Benchmark : IDisposable
         var component = await renderer.RenderAsync<Component1>(ParameterView.Empty);
 
         // Set new parameters and re-render
-        await renderer.SetParametersAsync(component, ParameterView.FromDictionary(new Dictionary<string, object?>()
-        {
-            { "Text", "Foo" }
-        }));
+        await component.SetParametersAsync(ParameterView.FromDictionary(new Dictionary<string, object?>()
+    {
+        { "Text", "Foo" }
+    }));
 
         // Re render without setting new parameters
-        await renderer.SetParametersAsync(component, ParameterView.Empty);
+        await component.SetParametersAsync(ParameterView.Empty);
+
+        // Remove the component again from the render tree. Stops the
+        // renderer from tracking the component.
+        component.RemoveComponent();
 
         return renderer.RenderCount;
     }

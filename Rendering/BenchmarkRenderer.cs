@@ -5,6 +5,8 @@ namespace Benchmark.Blazor.Rendering;
 
 internal class BenchmarkRenderer : Renderer
 {
+    private readonly List<int> rootComponentIds = new();
+
     /// <inheritdoc/>
     public override Dispatcher Dispatcher { get; } = Dispatcher.CreateDefault();
 
@@ -57,8 +59,8 @@ internal class BenchmarkRenderer : Renderer
     /// The parameters to pass to the <typeparamref name="TComponent"/> during 
     /// first render. Use <see cref="ParameterView.Empty"/> to pass no parameters.</param>
     /// <returns>The instance of the <typeparamref name="TComponent"/>.</returns>
-    public Task<TComponent> RenderAsync<TComponent>(ParameterView parameters)
-        where TComponent : IComponent, new()
+    public Task<RenderedComponent<TComponent>> RenderAsync<TComponent>(ParameterView parameters)
+        where TComponent : IComponent
     {
         UnhandledException = null;
 
@@ -66,35 +68,38 @@ internal class BenchmarkRenderer : Renderer
         {
             var component = (TComponent)InstantiateComponent(typeof(TComponent));
             var componentId = AssignRootComponentId(component);
+            rootComponentIds.Add(componentId);
             await RenderRootComponentAsync(componentId, parameters).ConfigureAwait(false);
-            return component;
+            return new RenderedComponent<TComponent>(component, componentId, this);
         });
 
         return result;
     }
 
     /// <summary>
-    /// Pass the provided <paramref name="parameters"/> to the <paramref name="component"/>.
-    /// For normal components that inherit from <see cref="ComponentBase"/> this causes
-    /// the component to go through all its life cycle methods.
+    /// Remove all component from the render tree(s) and clean up resources 
+    /// allocated to them in the <see cref="BenchmarkRenderer"/>. 
+    /// 
+    /// This also calls the <see cref="IDisposable.Dispose"/> and/or 
+    /// <see cref="IAsyncDisposable.DisposeAsync"/> methods, if it 
+    /// components implements either of those interfaces.
     /// </summary>
-    /// <typeparam name="TComponent"></typeparam>
-    /// <param name="component">
-    /// The component to pass new parameters to.
-    /// Use <see cref="ParameterView.Empty"/> to pass no parameters and just trigger a re-render.
-    /// </param>
-    /// <param name="parameters">The parameters to pass to the <paramref name="component"/>.</param>
-    /// <returns>A task that completes when the <see cref="IComponent.SetParametersAsync(ParameterView)"/>
-    /// method completes.</returns>
-    public Task SetParametersAsync<TComponent>(TComponent component, ParameterView parameters)
-        where TComponent : IComponent
+    public void RemoveComponents()
     {
-        UnhandledException = null;
-
-        return Dispatcher.InvokeAsync(() =>
+        Dispatcher.InvokeAsync(() =>
         {
-            return component.SetParametersAsync(parameters).ConfigureAwait(false);
+            foreach (var componentId in rootComponentIds)
+            {
+                RemoveRootComponent(componentId);
+            }
         });
+
+        rootComponentIds.Clear();
+    }
+
+    internal void RemoveComponent(int componentId)
+    {
+        Dispatcher.InvokeAsync(() => RemoveRootComponent(componentId));
     }
 
     protected override void HandleException(Exception exception)
